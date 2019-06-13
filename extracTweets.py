@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pymongo.mongo_client import MongoClient
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler, Stream, cursor, API
@@ -28,13 +29,13 @@ class TweetListener(StreamListener):
 
     def on_data(self, raw_data):
         try:
-            data = pd.read_json(raw_data)
+            data = pd.read_json(raw_data, orient='columns')
             client = MongoClient('localhost', 27017)
             data_base = client['DB_DataSourceTweets']
             collection = data_base['Doc_Tweets']
-            jsonData = json.loads(data.T.to_json()).values()
+            jsonData = json.loads(data.head(1).T.to_json()).values()
             new_tweet = collection.insert(jsonData)
-            print(new_tweet)
+            print(jsonData)
             return True
 
         except BaseException as e:
